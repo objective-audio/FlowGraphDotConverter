@@ -32,73 +32,95 @@ class StateScanner {
         
         var tempNextState: FlowGraphNextState?
         
+        // stateかどうかを調べる
         builder.add(state: .findStateDecl) { event in
             if event.token.content == "state" {
+                // stateだった
                 return .wait(.findStateName)
             }
+            // stateじゃない
             return .wait(.failed)
         }
         
+        // ステートの名前を記録
         builder.add(state: .findStateName) { event in
             event.scanner.flowGraphState = FlowGraphState(name: event.token.content, codeExprCall: event.codeExprCall)
             return .wait(.findInDecl)
         }
         
+        // inを探す
         builder.add(state: .findInDecl) { event in
             if event.token.content == "in" {
+                // inが見つかった
                 return .wait(.findInNextStateKind)
             }
             return .stay
         }
         
+        // inの後を調べる
         builder.add(state: .findInNextStateKind) { event in
             switch event.token.content {
             case "run":
                 tempNextState = FlowGraphNextState(kind: .run, token: event.token)
+                // run
                 return .wait(.findNextStateName)
             case "wait":
                 tempNextState = FlowGraphNextState(kind: .wait, token: event.token)
+                // wait
                 return .wait(.findNextStateName)
             case "stay":
+                // stay
                 return .wait(.findReturnDecl)
             default:
+                // どれでもない
                 return .wait(.findReturnDecl)
             }
         }
         
+        // returnを探す
         builder.add(state: .findReturnDecl) { event in
             if event.token.content == "return" {
+                // returnが見つかった
                 return .wait(.findNextStateKind)
             }
             return .stay
         }
         
+        // returnの後を調べる
         builder.add(state: .findNextStateKind) { event in
             switch event.token.content {
             case "run":
                 tempNextState = FlowGraphNextState(kind: .run, token: event.token)
+                // run
                 return .wait(.findNextStateName)
             case "wait":
                 tempNextState = FlowGraphNextState(kind: .wait, token: event.token)
+                // wait
                 return .wait(.findNextStateName)
             case "stay":
+                // stay
                 return .wait(.findReturnDecl)
             default:
+                // どれでもない
                 return .wait(.failed)
             }
         }
         
+        // 次ステートの名前を調べる
         builder.add(state: .findNextStateName) { event in
             if let state = event.scanner.flowGraphState, let nextState = tempNextState {
                 nextState.name = event.token.content
                 state.add(nextState: nextState)
                 tempNextState = nil
+                // 次ステートを記録した
                 return .wait(.findReturnDecl)
             } else {
+                // 次ステートを記録できない
                 return .wait(.failed)
             }
         }
         
+        // スキャン失敗
         builder.add(state: .failed) { event in
             return .stay
         }
