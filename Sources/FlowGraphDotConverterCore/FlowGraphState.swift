@@ -36,34 +36,15 @@ class FlowGraphState {
         self.nextStates.append(nextState)
     }
     
-    func uiflow() -> String {
-        var uiflow = "[\(self.name)]"
-        
-        if let comment = self.comment {
-            uiflow = uiflow + "\n\(comment.dropFirst(2).trimmingCharacters(in: .whitespacesAndNewlines))"
-        }
-        
-        let stateFlows = self.nextStates.map({
-            let name = $0.name ?? "Unknown"
-            return "\n\($0.uiflow())\n==> \(name)"
-        }).joined()
-        
-        return uiflow + "\n--\(stateFlows)"
-    }
-    
     func dotDeclarationText() -> String {
         var labelTexts: [String] = []
-        labelTexts.append("<title> \(self.name)")
+        labelTexts.append("\(self.name)")
         
         if let comment = self.comment {
-            labelTexts.append("<see> \(comment.dropFirst(2).trimmingCharacters(in: .whitespacesAndNewlines))")
-        }
-        
-        for (idx, nextState) in self.nextStates.enumerated() {
-            labelTexts.append("<action\(idx)> \(nextState.dotText())")
+            labelTexts.append("\(comment.dropFirst(2).trimmingCharacters(in: .whitespacesAndNewlines))")
         }
 
-        let label = labelTexts.joined(separator: "\\l |")
+        let label = "{" + labelTexts.joined(separator: "|") + "}"
         
         // TODO: width?
         return Dot.elementText(name: self.name, dictionary: ["shape": "record", "label": label])
@@ -72,7 +53,7 @@ class FlowGraphState {
     func dotActionsText() -> [String] {
         return self.nextStates.enumerated().map { (idx, nextState) in
             let nextName = nextState.name ?? "unknown"
-            return "\"\(self.name)\":action\(idx) -> \"\(nextName)\""
+            return "\"\(self.name)\" -> \"\(nextName)\"" + nextState.dotElementText()
         }
     }
 }

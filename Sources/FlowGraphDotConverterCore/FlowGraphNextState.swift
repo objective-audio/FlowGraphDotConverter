@@ -11,6 +11,15 @@ class FlowGraphNextState {
     enum Kind {
         case run
         case wait
+        
+        func styleText() -> String {
+            switch self {
+            case .run:
+                return "solid"
+            case .wait:
+                return "dashed"
+            }
+        }
     }
     
     let kind: Kind
@@ -23,11 +32,15 @@ class FlowGraphNextState {
         self.token = token
     }
     
-    func uiflow() -> String {
-        return self.dotText()
-    }
-    
-    func dotText() -> String {
-        return self.comment?.dropFirst(2).trimmingCharacters(in: .whitespacesAndNewlines) ?? self.name ?? ""
+    func dotElementText() -> String {
+        var attrs: [String: String] = [:]
+        
+        if let comment = self.comment?.dropFirst(2).trimmingCharacters(in: .whitespacesAndNewlines) {
+            attrs["label"] = comment
+        }
+        
+        attrs["style"] = self.kind.styleText()
+        
+        return Dot.elementText(name: "", dictionary: attrs)
     }
 }

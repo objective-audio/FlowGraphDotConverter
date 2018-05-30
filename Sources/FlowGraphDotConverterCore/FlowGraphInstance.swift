@@ -20,16 +20,12 @@ class FlowGraphInstance {
         self.states.append(state)
     }
     
-    func uiflow() -> String {
-        return self.states.map { $0.uiflow() }.joined(separator: "\n\n")
-    }
-    
     func dotText() -> String {
         var texts: [String] = []
         
-        texts.append(Dot.elementText(name: "graph", dictionary: ["charset": "UTF-8", "labelloc": "t", "labeljust": "r", "style": "filled", "margin": "0.2", "ranksep": "0.5", "nodesep": "0.4", "rankdir": "LR"]))
-        texts.append(Dot.elementText(name: "node", dictionary: ["style": "solid", "fontsize": "11", "margin": "0.1,0.1", "fontname": "HiraKakuProN-W3"]))
-        texts.append(Dot.elementText(name: "edge", dictionary: ["fontsize": "9", "color": "#777777", "fontname": "HiraKakuProN-W3"]))
+        texts.append(Dot.elementText(name: "graph", dictionary: ["charset": "UTF-8", "rankdir": "TB"]))
+        texts.append(Dot.elementText(name: "node", dictionary: ["style": "solid,filled", "fontsize": "10", "fontname": "Osaka-Mono", "color": "#CCCCCC", "fillcolor": "#F9F9F9", "fontcolor": "#333333"]))
+        texts.append(Dot.elementText(name: "edge", dictionary: ["fontsize": "9", "color": "#AAAAAA", "fontname": "Osaka-Mono", "fontcolor": "#333333"]))
         texts = texts + [""]
         texts = texts + self.states.map { $0.dotDeclarationText() }
         texts = texts + [""]
