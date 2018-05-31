@@ -1,8 +1,5 @@
 //
 //  CodeType.swift
-//  CYaml
-//
-//  Created by yasoshima on 2018/05/16.
 //
 
 import Foundation

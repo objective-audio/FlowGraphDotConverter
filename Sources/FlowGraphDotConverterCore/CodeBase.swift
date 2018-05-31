@@ -1,8 +1,5 @@
 //
 //  CodeBase.swift
-//  SPMTest
-//
-//  Created by yasoshima on 2018/05/16.
 //
 
 import Foundation

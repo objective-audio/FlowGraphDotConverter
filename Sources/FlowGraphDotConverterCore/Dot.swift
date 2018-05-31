@@ -1,8 +1,5 @@
 //
 //  Dot.swift
-//  FlowGraphDotConverter
-//
-//  Created by yasoshima on 2018/05/25.
 //
 
 import Foundation

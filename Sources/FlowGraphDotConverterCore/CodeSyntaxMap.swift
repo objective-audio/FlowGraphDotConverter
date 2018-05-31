@@ -1,8 +1,5 @@
 //
 //  CodeSyntaxMap.swift
-//  SPMTest
-//
-//  Created by yasoshima on 2018/05/17.
 //
 
 import Foundation

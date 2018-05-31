@@ -1,8 +1,5 @@
 //
 //  CodeStructure.swift
-//  SPMTest
-//
-//  Created by yasoshima on 2018/05/11.
 //
 
 import Foundation
