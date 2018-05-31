@@ -336,4 +336,36 @@ class FlowGraphScanner {
             }
         }
     }
+    
+    func enterRemovedInstances() -> [CodeAddress: FlowGraphInstance] {
+        var dstInstances: [CodeAddress: FlowGraphInstance] = [:]
+        
+        for (address, srcInstance) in self.flowGraphInstances {
+            let dstInstance = FlowGraphInstance(codeVar: srcInstance.codeVar)
+            dstInstances[address] = dstInstance
+            
+            let enterStates = srcInstance.states.filter { $0.isEnter() }
+            let notEnterStates = srcInstance.states.filter { !$0.isEnter() }
+            
+            for srcState in notEnterStates {
+                let dstState = FlowGraphState(name: srcState.name, codeExprCall: srcState.codeExprCall)
+                dstState.comment = srcState.comment
+                
+                for srcNextState in srcState.nextStates {
+                    if srcNextState.mayBeEnter(), let nextStateName = srcNextState.name, !enterStates.filter({ $0.name == nextStateName }).isEmpty {
+                        let dstNextState = FlowGraphNextState(kind: .wait, token: srcNextState.token)
+                        dstNextState.comment = srcNextState.comment
+                        dstNextState.name = srcNextState.enteredStateName()
+                        dstState.add(nextState: dstNextState)
+                    } else {
+                        dstState.add(nextState: srcNextState)
+                    }
+                }
+                
+                dstInstance.add(state: dstState)
+            }
+        }
+        
+        return dstInstances
+    }
 }

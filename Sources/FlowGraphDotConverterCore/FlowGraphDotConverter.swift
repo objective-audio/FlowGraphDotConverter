@@ -8,14 +8,14 @@
 import Foundation
 
 public struct FlowGraphDotConverter {
-    public static func convert(inFilePath: String, outDirPath: String) {
+    public static func convert(inFilePath: String, outDirPath: String, isRemoveEnter: Bool) {
         let inFileUrl = URL(fileURLWithPath: inFilePath)
         let outDirURL = self.outUrl(inFileURL: inFileUrl, outDirPath: outDirPath)
-        self.convert(inFileUrl: inFileUrl, outDirUrl: outDirURL)
+        self.convert(inFileUrl: inFileUrl, outDirUrl: outDirURL, isRemoveEnter: isRemoveEnter)
     }
     
-    public static func convert(inFileUrl: URL, outDirUrl: URL) {
-        let graphInstances = FlowGraphDotConverter.loadGraphInstances(url: inFileUrl)
+    public static func convert(inFileUrl: URL, outDirUrl: URL, isRemoveEnter: Bool) {
+        let graphInstances = FlowGraphDotConverter.loadGraphInstances(url: inFileUrl, isRemoveEnter: isRemoveEnter)
         
         let fileManager = FileManager.default
         var isDirectory = ObjCBool(false)
@@ -67,7 +67,7 @@ public struct FlowGraphDotConverter {
         }
     }
     
-    static func loadGraphInstances(url: URL) -> [CodeAddress: FlowGraphInstance] {
+    static func loadGraphInstances(url: URL, isRemoveEnter: Bool) -> [CodeAddress: FlowGraphInstance] {
         let fileManager = FileManager.default
         var isDirectory = ObjCBool(false)
         
@@ -86,6 +86,10 @@ public struct FlowGraphDotConverter {
             return [:]
         }
         
-        return scanner.flowGraphInstances
+        if isRemoveEnter {
+            return scanner.enterRemovedInstances()
+        } else {
+            return scanner.flowGraphInstances
+        }
     }
 }
