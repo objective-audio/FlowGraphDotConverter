@@ -5,6 +5,29 @@
 import Foundation
 
 class FlowGraphState {
+    enum Connection {
+        case both
+        case bothRunInputOnly
+        case inputOnly
+        case outputOnly
+        case alone
+        
+        func color() -> String {
+            switch self {
+            case .both:
+                return "#AAAAAA"
+            case .bothRunInputOnly:
+                return "#40C5EE"
+            case .inputOnly:
+                return "#FF8A00"
+            case .outputOnly:
+                return "#00D54B"
+            case .alone:
+                return "#EF34AC"
+            }
+        }
+    }
+    
     let name: String
     private(set) var nextStates: [FlowGraphNextState] = []
     let codeExprCall: CodeExprCall
@@ -33,7 +56,7 @@ class FlowGraphState {
         self.nextStates.append(nextState)
     }
     
-    func dotDeclarationText() -> String {
+    func dotDeclarationText(instance: FlowGraphInstance) -> String {
         var labelTexts: [String] = []
         labelTexts.append("\(self.name)")
         
@@ -43,11 +66,11 @@ class FlowGraphState {
 
         let label = "{" + labelTexts.joined(separator: "|") + "}"
         
-        return Dot.elementText(name: self.name, dictionary: ["shape": "record", "label": label])
+        return Dot.elementText(name: self.name, dictionary: ["shape": "record", "label": label, "color": self.connection(instance: instance).color()])
     }
     
     func dotActionsText() -> [String] {
-        return self.nextStates.filter { $0.kind != .stay }.enumerated().map { (idx, nextState) in
+        return self.nextStates.filter { $0.kind != .stay }.map { nextState in
             let nextName = nextState.name ?? "unknown"
             return "\"\(self.name)\" -> \"\(nextName)\"" + nextState.dotElementText()
         }
@@ -75,5 +98,57 @@ class FlowGraphState {
         }
         
         return true
+    }
+    
+    func hasOutput() -> Bool {
+        return self.nextStates.filter { $0.kind != .stay }.count > 0
+    }
+    
+    func hasInput(instance: FlowGraphInstance) -> Bool {
+        for state in instance.states {
+            for nextState in state.nextStates {
+                if let nextStateName = nextState.name, nextStateName == self.name {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+    
+    func hasRunInputOnly(instance: FlowGraphInstance) -> Bool {
+        var hasRunOnly: Bool = false
+        
+        for state in instance.states {
+            for nextState in state.nextStates {
+                if let nextStateName = nextState.name, nextStateName == self.name {
+                    if nextState.kind == .run {
+                        hasRunOnly = true
+                    } else {
+                        return false
+                    }
+                }
+            }
+        }
+        return hasRunOnly
+    }
+    
+    func connection(instance: FlowGraphInstance) -> Connection {
+        let hasOutput = self.hasOutput()
+        let hasInput = self.hasInput(instance: instance)
+        let hasRunInputOnly = self.hasRunInputOnly(instance: instance)
+        
+        if hasOutput && hasInput {
+            if hasRunInputOnly {
+                return .bothRunInputOnly
+            } else {
+                return .both
+            }
+        } else if hasOutput {
+            return .outputOnly
+        } else if hasInput {
+            return .inputOnly
+        } else {
+            return .alone
+        }
     }
 }

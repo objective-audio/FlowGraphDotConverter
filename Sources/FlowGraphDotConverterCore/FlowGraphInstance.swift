@@ -24,7 +24,7 @@ class FlowGraphInstance {
         texts.append(Dot.elementText(name: "node", dictionary: ["style": "solid,filled", "fontsize": "10", "fontname": "Osaka-Mono", "color": "#CCCCCC", "fillcolor": "#F9F9F9", "fontcolor": "#333333"]))
         texts.append(Dot.elementText(name: "edge", dictionary: ["fontsize": "9", "color": "#AAAAAA", "fontname": "Osaka-Mono", "fontcolor": "#333333"]))
         texts = texts + [""]
-        texts = texts + self.states.map { $0.dotDeclarationText() }
+        texts = texts + self.states.map { $0.dotDeclarationText(instance: self) }
         texts = texts + [""]
         texts = texts + self.states.flatMap { $0.dotActionsText() }
         
