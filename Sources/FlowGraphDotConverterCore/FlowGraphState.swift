@@ -55,4 +55,28 @@ class FlowGraphState {
             return "\"\(self.name)\" -> \"\(nextName)\"" + nextState.dotElementText()
         }
     }
+    
+    func isEnter() -> Bool {
+        guard self.name.hasSuffix("Enter") else {
+            return false
+        }
+        
+        guard self.nextStates.count == 1 else {
+            return false
+        }
+        
+        guard let nextState = self.nextStates.first else {
+            return false
+        }
+        
+        guard nextState.kind == .wait else {
+            return false
+        }
+        
+        guard let nextStateName = nextState.name, nextStateName == self.name.dropLast(5) else {
+            return false
+        }
+        
+        return true
+    }
 }

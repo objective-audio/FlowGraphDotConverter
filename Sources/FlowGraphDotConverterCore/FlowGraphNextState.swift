@@ -46,4 +46,28 @@ class FlowGraphNextState {
         
         return Dot.elementText(name: "", dictionary: attrs)
     }
+    
+    func mayBeEnter() -> Bool {
+        guard self.kind == .run else {
+            return false
+        }
+        
+        guard let name = self.name, name.hasSuffix("Enter") else {
+            return false
+        }
+        
+        return true
+    }
+    
+    func enteredStateName() -> String {
+        guard mayBeEnter() else {
+            fatalError()
+        }
+        
+        guard let name = self.name else {
+            fatalError()
+        }
+        
+        return String(name.dropLast(5))
+    }
 }
