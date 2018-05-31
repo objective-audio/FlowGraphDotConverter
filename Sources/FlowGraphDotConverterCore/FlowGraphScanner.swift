@@ -18,6 +18,7 @@ class StateScanner {
         case findReturnDecl
         case findNextStateKind
         case findNextStateName
+        case recordNextState
         case failed
     }
     
@@ -69,8 +70,9 @@ class StateScanner {
                 // wait
                 return .wait(.findNextStateName)
             case "stay":
+                tempNextState = FlowGraphNextState(kind: .stay, token: event.token)
                 // stay
-                return .wait(.findReturnDecl)
+                return .run(.recordNextState, event)
             default:
                 // どれでもない
                 return .wait(.findReturnDecl)
@@ -98,18 +100,26 @@ class StateScanner {
                 // wait
                 return .wait(.findNextStateName)
             case "stay":
+                tempNextState = FlowGraphNextState(kind: .stay, token: event.token)
                 // stay
-                return .wait(.findReturnDecl)
+                return .run(.recordNextState, event)
             default:
                 // どれでもない
                 return .wait(.failed)
             }
         }
         
-        // 次ステートの名前を調べる
+        // 次ステートの名前を保持
         builder.add(state: .findNextStateName) { event in
-            if let state = event.scanner.flowGraphState, let nextState = tempNextState {
+            if let nextState = tempNextState {
                 nextState.name = event.token.content
+            }
+            return .run(.recordNextState, event)
+        }
+        
+        // 次ステートを記録する
+        builder.add(state: .recordNextState) { event in
+            if let state = event.scanner.flowGraphState, let nextState = tempNextState {
                 state.add(nextState: nextState)
                 tempNextState = nil
                 // 次ステートを記録した
@@ -267,7 +277,6 @@ class FlowGraphScanner {
             
             self.builderVars.append(value)
         }
-        
     }
     
     private func scanInstance() {

@@ -46,12 +46,11 @@ class FlowGraphState {
 
         let label = "{" + labelTexts.joined(separator: "|") + "}"
         
-        // TODO: width?
         return Dot.elementText(name: self.name, dictionary: ["shape": "record", "label": label])
     }
     
     func dotActionsText() -> [String] {
-        return self.nextStates.enumerated().map { (idx, nextState) in
+        return self.nextStates.filter { $0.kind != .stay }.enumerated().map { (idx, nextState) in
             let nextName = nextState.name ?? "unknown"
             return "\"\(self.name)\" -> \"\(nextName)\"" + nextState.dotElementText()
         }

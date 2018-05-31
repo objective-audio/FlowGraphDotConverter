@@ -11,6 +11,7 @@ class FlowGraphNextState {
     enum Kind {
         case run
         case wait
+        case stay
         
         func styleText() -> String {
             switch self {
@@ -18,6 +19,8 @@ class FlowGraphNextState {
                 return "solid"
             case .wait:
                 return "dashed"
+            case .stay:
+                fatalError()
             }
         }
     }
