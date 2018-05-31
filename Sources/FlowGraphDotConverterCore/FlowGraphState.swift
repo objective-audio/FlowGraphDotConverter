@@ -15,7 +15,7 @@ class FlowGraphState {
         func color() -> String {
             switch self {
             case .both:
-                return "#AAAAAA"
+                return "#BBBBBB"
             case .bothRunInputOnly:
                 return "#40C5EE"
             case .inputOnly:

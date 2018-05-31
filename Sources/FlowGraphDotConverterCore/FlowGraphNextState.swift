@@ -20,6 +20,17 @@ class FlowGraphNextState {
                 fatalError()
             }
         }
+        
+        func color() -> String {
+            switch self {
+            case .run:
+                return "#99DEF3"
+            case .wait:
+                return "#AAAAAA"
+            case .stay:
+                fatalError()
+            }
+        }
     }
     
     let kind: Kind
@@ -40,6 +51,7 @@ class FlowGraphNextState {
         }
         
         attrs["style"] = self.kind.styleText()
+        attrs["color"] = self.kind.color()
         
         return Dot.elementText(name: "", dictionary: attrs)
     }
