@@ -73,6 +73,9 @@ class StateScanner {
                 tempNextState = FlowGraphNextState(kind: .stay, token: event.token)
                 // stay
                 return .run(.recordNextState, event)
+            case "return":
+                // return
+                return .wait(.findNextStateKind)
             default:
                 // どれでもない
                 return .wait(.findReturnDecl)
