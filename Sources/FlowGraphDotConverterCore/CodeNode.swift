@@ -8,6 +8,7 @@ import SourceKittenFramework
 enum CodeNodeKind {
     case `class`
     case `struct`
+    case `extension`
     case `enum`
     case enumcase
     case enumelement
@@ -28,6 +29,8 @@ enum CodeNodeKind {
             self = .class
         case SwiftDeclarationKind.struct.rawValue:
             self = .struct
+        case SwiftDeclarationKind.extension.rawValue:
+            self = .extension
         case SwiftDeclarationKind.enum.rawValue:
             self = .enum
         case SwiftDeclarationKind.enumcase.rawValue:
@@ -104,7 +107,7 @@ struct CodeAddress {
         var names: [String] = []
         
         for node in self.nodes {
-            if let kind = node.kind, kind == .class || kind == .struct, !node.name.isEmpty {
+            if let kind = node.kind, kind == .class || kind == .struct || kind == .extension, !node.name.isEmpty {
                 names.append(node.name)
             }
         }

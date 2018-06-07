@@ -8,6 +8,7 @@ import SourceKittenFramework
 class CodeScanner {
     private(set) var codeClasses: [CodeAddress: CodeClass] = [:]
     private(set) var codeStructs: [CodeAddress: CodeStruct] = [:]
+    private(set) var codeExtensions: [CodeAddress: CodeExtension] = [:]
     private(set) var codeEnums: [CodeAddress: CodeEnum] = [:]
     private(set) var codeFunctions: [CodeAddress: CodeFunction] = [:]
     private(set) var codeExprCalls: [CodeAddress: CodeExprCall] = [:]
@@ -29,6 +30,8 @@ class CodeScanner {
                 self.codeClasses[address] = CodeClass(address: address, structure: structure)
             case .struct:
                 self.codeStructs[address] = CodeStruct(address: address, structure: structure)
+            case .extension:
+                self.codeExtensions[address] = CodeExtension(address: address, structure: structure)
             case .enum:
                 self.codeEnums[address] = CodeEnum(address: address, structure: structure)
             case .enumcase:

@@ -36,6 +36,9 @@ class CodeStruct: CodeBase {
 class CodeClass: CodeBase {
 }
 
+class CodeExtension: CodeBase {
+}
+
 class CodeFunction: CodeBase {
 }
 
