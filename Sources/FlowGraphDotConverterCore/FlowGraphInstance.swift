@@ -20,7 +20,9 @@ class FlowGraphInstance {
     func dotText() -> String {
         var texts: [String] = []
         
-        texts.append(Dot.elementText(name: "graph", dictionary: ["charset": "UTF-8", "rankdir": "TB"]))
+        let title = self.codeVar.base.address.className() ?? ""
+        
+        texts.append(Dot.elementText(name: "graph", dictionary: ["charset": "UTF-8", "rankdir": "TB", "label": title, "labelloc": "t", "labeljust": "l", "fontsize": "12", "fontname": "Osaka-Mono", "fontcolor": "#333333"]))
         texts.append(Dot.elementText(name: "node", dictionary: ["style": "solid,filled", "fontsize": "10", "fontname": "Osaka-Mono", "color": "#CCCCCC", "fillcolor": "#F9F9F9", "fontcolor": "#333333"]))
         texts.append(Dot.elementText(name: "edge", dictionary: ["fontsize": "9", "color": "#AAAAAA", "fontname": "Osaka-Mono", "fontcolor": "#333333"]))
         texts = texts + [""]
