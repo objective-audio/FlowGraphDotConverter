@@ -6,6 +6,7 @@ import Foundation
 
 class FlowGraphInstance {
     let codeVar: CodeVar
+    var comment: String?
     
     init(codeVar: CodeVar) {
         self.codeVar = codeVar
@@ -20,7 +21,14 @@ class FlowGraphInstance {
     func dotText() -> String {
         var texts: [String] = []
         
-        let title = self.codeVar.base.address.className() ?? ""
+        var titleTexts: [String] = []
+        if let className = self.codeVar.base.address.className() {
+            titleTexts.append(className)
+        }
+        if let comment = self.comment?.dropFirst(2).trimmingCharacters(in: .whitespacesAndNewlines) {
+            titleTexts.append(comment)
+        }
+        let title = titleTexts.joined(separator: " - ")
         
         texts.append(Dot.elementText(name: "graph", dictionary: ["charset": "UTF-8", "rankdir": "TB", "label": title, "labelloc": "t", "labeljust": "l", "fontsize": "12", "fontname": "Osaka-Mono", "fontcolor": "#333333"]))
         texts.append(Dot.elementText(name: "node", dictionary: ["style": "solid,filled", "fontsize": "10", "fontname": "Osaka-Mono", "color": "#CCCCCC", "fillcolor": "#F9F9F9", "fontcolor": "#333333"]))

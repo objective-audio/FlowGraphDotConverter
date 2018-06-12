@@ -26,6 +26,7 @@ class StateScanner {
     var flowGraphState: FlowGraphState?
     
     init() {
+        // ステートの中身の解析
         let builder = FlowGraphBuilder<State, Event>()
         
         var tempNextState: FlowGraphNextState?
@@ -156,7 +157,6 @@ class StateScanner {
 class FlowGraphScanner {
     private(set) var flowGraphInstances: [CodeAddress: FlowGraphInstance] = [:]
     private(set) var flowGraphStates: [FlowGraphState] = []
-    private(set) var builderVars: [CodeVar] = []
     
     init?(url: URL) {
         guard let file = File(path: url.path) else {
@@ -180,7 +180,7 @@ class FlowGraphScanner {
         
         for (_, codeExprCall) in codeScanner.codeExprCalls {
             self.scanState(codeExprCall: codeExprCall, codeSyntaxMap: codeSyntaxMap)
-            self.scanBuilder(codeExprCall: codeExprCall, codeScanner: codeScanner)
+            self.scanBuilder(codeExprCall: codeExprCall, codeScanner: codeScanner, codeSyntaxMap: codeSyntaxMap)
         }
         
         self.scanInstance()
@@ -247,7 +247,7 @@ class FlowGraphScanner {
         }
     }
     
-    private func scanBuilder(codeExprCall: CodeExprCall, codeScanner: CodeScanner) {
+    private func scanBuilder(codeExprCall: CodeExprCall, codeScanner: CodeScanner, codeSyntaxMap: CodeSyntaxMap) {
         guard let name = codeExprCall.structure.name, name.hasPrefix("FlowGraphBuilder<") else {
             return
         }
@@ -262,7 +262,7 @@ class FlowGraphScanner {
             return
         }
         
-        for (key, value) in codeScanner.codeVars {
+        for (key, codeVar) in codeScanner.codeVars {
             guard let localVarParent = key.parent() else {
                 continue
             }
@@ -275,16 +275,23 @@ class FlowGraphScanner {
                 continue
             }
             
-            self.builderVars.append(value)
+            let instance = FlowGraphInstance(codeVar: codeVar)
+            
+            self.flowGraphInstances[codeVar.base.address] = instance
+            
+            // コメントを追加する
+            
+            guard let offset = codeVar.base.structure.offset else {
+                continue
+            }
+            
+            if let commentToken = codeSyntaxMap.tokenBefore(offset: Int(offset)), commentToken.kind == .comment {
+                instance.comment = commentToken.content
+            }
         }
     }
     
     private func scanInstance() {
-        for codeVar in self.builderVars {
-            self.flowGraphInstances[codeVar.base.address] = FlowGraphInstance(codeVar: codeVar)
-        }
-        
-        
         forStates: for state in self.flowGraphStates {
             guard let stateParent = state.codeExprCall.address.parent() else {
                 continue
@@ -294,7 +301,9 @@ class FlowGraphScanner {
                 continue
             }
             
-            forVars: for codeVar in self.builderVars {
+            let builderVars: [CodeVar] = self.flowGraphInstances.map { (_, value) in return value.codeVar }
+            
+            forVars: for codeVar in builderVars {
                 guard let varParent = codeVar.base.address.parent() else {
                     continue
                 }
@@ -339,6 +348,7 @@ class FlowGraphScanner {
         
         for (address, srcInstance) in self.flowGraphInstances {
             let dstInstance = FlowGraphInstance(codeVar: srcInstance.codeVar)
+            dstInstance.comment = srcInstance.comment
             dstInstances[address] = dstInstance
             
             let enterStates = srcInstance.states.filter { $0.isEnter() }
