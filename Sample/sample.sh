@@ -11,5 +11,5 @@ if ! brew list | grep -q graphviz; then
 fi
 
 swift build -c release
-../.build/release/FlowGraphDotConverter ../Sources/FlowGraphDotConverterCore/FlowGraphScanner.swift --output ./ --noenter
+swift run -c release FlowGraphDotConverter ../Sources/FlowGraphDotConverterCore/FlowGraphScanner.swift --output ./ --noenter
 dot -T svg ./StateScanner.dot -o ./StateScanner.svg
