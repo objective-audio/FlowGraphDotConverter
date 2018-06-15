@@ -86,9 +86,9 @@
         "package": "FlowGraph",
         "repositoryURL": "https://github.com/objective-audio/SwiftFlowGraph.git",
         "state": {
-          "branch": "separate_wait_run",
-          "revision": "3f5cfb68927acc2aa5293350192e516cc3440c66",
-          "version": null
+          "branch": null,
+          "revision": "01cdf7aa34c8bb456730573a923b2b1efc0c83f2",
+          "version": "0.2.0"
         }
       },
       {
