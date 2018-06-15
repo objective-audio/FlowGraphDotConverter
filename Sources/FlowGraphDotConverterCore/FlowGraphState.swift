@@ -5,6 +5,11 @@
 import Foundation
 
 class FlowGraphState {
+    enum Kind {
+        case waiting
+        case running
+    }
+    
     enum Connection {
         case both
         case bothRunInputOnly
@@ -29,6 +34,7 @@ class FlowGraphState {
     }
     
     let name: String
+    let kind: Kind
     private(set) var nextStates: [FlowGraphNextState] = []
     let codeExprCall: CodeExprCall
     var comment: String?
@@ -47,8 +53,9 @@ class FlowGraphState {
         return components[components.count - 2]
     }
     
-    init(name: String, codeExprCall: CodeExprCall) {
+    init(name: String, kind: Kind, codeExprCall: CodeExprCall) {
         self.name = name
+        self.kind = kind
         self.codeExprCall = codeExprCall
     }
     
@@ -77,6 +84,10 @@ class FlowGraphState {
     }
     
     func isEnter() -> Bool {
+        guard self.kind == .running else {
+            return false;
+        }
+        
         guard self.name.hasSuffix("Enter") else {
             return false
         }

@@ -33,8 +33,8 @@
         "repositoryURL": "https://github.com/Quick/Nimble.git",
         "state": {
           "branch": null,
-          "revision": "21f4fed2052cea480f5f1d2044d45aa25fdfb988",
-          "version": "7.1.1"
+          "revision": "8023e3980d91b470ad073d6da843b73f2eeb1844",
+          "version": "7.1.2"
         }
       },
       {
@@ -87,8 +87,8 @@
         "repositoryURL": "https://github.com/objective-audio/SwiftFlowGraph.git",
         "state": {
           "branch": null,
-          "revision": "34acddc26dbbacc468dd4c8d479e97d0bf644524",
-          "version": "0.1.4"
+          "revision": "01cdf7aa34c8bb456730573a923b2b1efc0c83f2",
+          "version": "0.2.0"
         }
       },
       {
