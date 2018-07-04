@@ -119,7 +119,7 @@ class StateScanner {
                 return .run(.recordNextState, event)
             default:
                 // どれでもない
-                return .wait(.failed)
+                return .wait(.findReturnDecl)
             }
         }
         
