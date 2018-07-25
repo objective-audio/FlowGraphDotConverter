@@ -216,7 +216,7 @@ class FlowGraphScanner {
         
         let splited = name.split(separator: ".")
         
-        guard splited.count == 2 else {
+        guard splited.count == 2 || (splited.count == 3 && splited[0] == "self") else {
             return
         }
         
