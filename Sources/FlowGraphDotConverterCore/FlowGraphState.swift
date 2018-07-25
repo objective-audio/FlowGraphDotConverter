@@ -4,6 +4,28 @@
 
 import Foundation
 
+class FlowGraphInitialState {
+    let name: String
+    let codeExprCall: CodeExprCall
+    
+    init(codeExprCall: CodeExprCall) {
+        self.codeExprCall = codeExprCall
+        
+        if var body = self.codeExprCall.structure.body {
+            if body.starts(with: ".") {
+                body = String(body.dropFirst())
+            }
+            self.name = body
+        } else {
+            fatalError()
+        }
+    }
+    
+    var varName: String? {
+        return self.codeExprCall.varName
+    }
+}
+
 class FlowGraphState {
     enum Kind {
         case waiting
@@ -16,6 +38,7 @@ class FlowGraphState {
         case inputOnly
         case outputOnly
         case alone
+        case initial
         
         func color() -> String {
             switch self {
@@ -25,7 +48,7 @@ class FlowGraphState {
                 return "#40C5EE"
             case .inputOnly:
                 return "#FF8A00"
-            case .outputOnly:
+            case .outputOnly, .initial:
                 return "#00D54B"
             case .alone:
                 return "#EF34AC"
@@ -38,19 +61,10 @@ class FlowGraphState {
     private(set) var nextStates: [FlowGraphNextState] = []
     let codeExprCall: CodeExprCall
     var comment: String?
+    var isInitial: Bool = false
     
     var varName: String? {
-        guard let exprCallName = self.codeExprCall.address.node?.name else {
-            return nil
-        }
-        
-        let components = exprCallName.components(separatedBy: ".")
-        
-        guard components.count > 1 else {
-            return nil
-        }
-        
-        return components[components.count - 2]
+        return self.codeExprCall.varName
     }
     
     init(name: String, kind: Kind, codeExprCall: CodeExprCall) {
@@ -144,6 +158,10 @@ class FlowGraphState {
     }
     
     func connection(instance: FlowGraphInstance) -> Connection {
+        if self.isInitial {
+            return .initial
+        }
+        
         let hasOutput = self.hasOutput()
         let hasInput = self.hasInput(instance: instance)
         let hasRunInputOnly = self.hasRunInputOnly(instance: instance)

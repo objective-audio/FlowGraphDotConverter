@@ -18,6 +18,20 @@ class FlowGraphInstance {
         self.states.append(state)
     }
     
+    private(set) var initialState: FlowGraphInitialState?
+    
+    func set(initialState: FlowGraphInitialState) {
+        self.initialState = initialState
+        
+        let initialName = initialState.name
+        
+        for state in self.states {
+            if state.name == initialName {
+                state.isInitial = true
+            }
+        }
+    }
+    
     func dotText() -> String {
         var texts: [String] = []
         

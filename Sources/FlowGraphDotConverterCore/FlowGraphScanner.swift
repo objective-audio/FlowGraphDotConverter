@@ -168,6 +168,7 @@ class StateScanner {
 class FlowGraphScanner {
     private(set) var flowGraphInstances: [CodeAddress: FlowGraphInstance] = [:]
     private(set) var flowGraphStates: [FlowGraphState] = []
+    private(set) var flowGraphInitialStates: [FlowGraphInitialState] = []
     
     init?(url: URL) {
         guard let file = File(path: url.path) else {
@@ -191,6 +192,7 @@ class FlowGraphScanner {
         
         for (_, codeExprCall) in codeScanner.codeExprCalls {
             self.scanState(codeExprCall: codeExprCall, codeSyntaxMap: codeSyntaxMap)
+            self.scanBegin(codeExprCall: codeExprCall)
             self.scanGraph(codeExprCall: codeExprCall, codeScanner: codeScanner, codeSyntaxMap: codeSyntaxMap)
         }
         
@@ -306,18 +308,40 @@ class FlowGraphScanner {
         }
     }
     
+    private func scanBegin(codeExprCall: CodeExprCall) {
+        guard let name = codeExprCall.structure.name, name.hasSuffix(".begin") else {
+            return
+        }
+        
+        guard codeExprCall.arguments.count == 1 else {
+            return
+        }
+        
+        guard let arg = codeExprCall.arguments.first, let argName = arg.structure.name else {
+            return
+        }
+        
+        guard argName == "with" else {
+            return
+        }
+        
+        let splited = name.split(separator: ".")
+        
+        guard splited.count == 2 || (splited.count == 3 && splited[0] == "self") else {
+            return
+        }
+        
+        guard arg.structure.body != nil else {
+            return
+        }
+        
+        self.flowGraphInitialStates.append(FlowGraphInitialState(codeExprCall: codeExprCall))
+    }
+    
     private func scanInstance() {
-        forStates: for state in self.flowGraphStates {
-            guard let stateParent = state.codeExprCall.address.parent() else {
-                continue
-            }
-            
-            guard let expectedVarName = state.varName else {
-                continue
-            }
-            
-            let graphVars: [CodeVar] = self.flowGraphInstances.map { (_, value) in return value.codeVar }
-            
+        let graphVars: [CodeVar] = self.flowGraphInstances.map { (_, value) in return value.codeVar }
+        
+        let findInstance = { (stateParent: CodeAddress, expectedVarName: String) -> FlowGraphInstance? in
             forVars: for codeVar in graphVars {
                 guard let varParent = codeVar.base.address.parent() else {
                     continue
@@ -351,10 +375,41 @@ class FlowGraphScanner {
                     continue
                 }
                 
-                flowGraphInstance.add(state: state)
-                
-                continue forStates
+                return flowGraphInstance
             }
+            return nil
+        }
+        
+        forStates: for state in self.flowGraphStates {
+            guard let stateParent = state.codeExprCall.address.parent() else {
+                continue
+            }
+            
+            guard let expectedVarName = state.varName else {
+                continue
+            }
+            
+            guard let flowGraphInstance = findInstance(stateParent, expectedVarName) else {
+                continue
+            }
+            
+            flowGraphInstance.add(state: state)
+        }
+        
+        forStates: for state in self.flowGraphInitialStates {
+            guard let stateParent = state.codeExprCall.address.parent() else {
+                continue
+            }
+            
+            guard let expectedVarName = state.varName else {
+                continue
+            }
+            
+            guard let flowGraphInstance = findInstance(stateParent, expectedVarName) else {
+                continue
+            }
+            
+            flowGraphInstance.set(initialState: state)
         }
     }
     

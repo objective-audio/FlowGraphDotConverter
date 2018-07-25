@@ -52,6 +52,20 @@ class CodeExprCall: CodeBase {
     override var debugDescription: String {
         return "{address: \(self.address), arguments: \(self.arguments)}"
     }
+    
+    var varName: String? {
+        guard let exprCallName = self.address.node?.name else {
+            return nil
+        }
+        
+        let components = exprCallName.components(separatedBy: ".")
+        
+        guard components.count > 1 else {
+            return nil
+        }
+        
+        return components[components.count - 2]
+    }
 }
 
 class CodeExprArgument: CodeBase {
