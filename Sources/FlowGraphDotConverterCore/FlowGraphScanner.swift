@@ -191,7 +191,7 @@ class FlowGraphScanner {
         
         for (_, codeExprCall) in codeScanner.codeExprCalls {
             self.scanState(codeExprCall: codeExprCall, codeSyntaxMap: codeSyntaxMap)
-            self.scanBuilder(codeExprCall: codeExprCall, codeScanner: codeScanner, codeSyntaxMap: codeSyntaxMap)
+            self.scanGraph(codeExprCall: codeExprCall, codeScanner: codeScanner, codeSyntaxMap: codeSyntaxMap)
         }
         
         self.scanInstance()
@@ -262,8 +262,8 @@ class FlowGraphScanner {
         }
     }
     
-    private func scanBuilder(codeExprCall: CodeExprCall, codeScanner: CodeScanner, codeSyntaxMap: CodeSyntaxMap) {
-        guard let name = codeExprCall.structure.name, name.hasPrefix("FlowGraphBuilder<") else {
+    private func scanGraph(codeExprCall: CodeExprCall, codeScanner: CodeScanner, codeSyntaxMap: CodeSyntaxMap) {
+        guard let name = codeExprCall.structure.name, name.hasPrefix("FlowGraph<") else {
             return
         }
         
@@ -316,9 +316,9 @@ class FlowGraphScanner {
                 continue
             }
             
-            let builderVars: [CodeVar] = self.flowGraphInstances.map { (_, value) in return value.codeVar }
+            let graphVars: [CodeVar] = self.flowGraphInstances.map { (_, value) in return value.codeVar }
             
-            forVars: for codeVar in builderVars {
+            forVars: for codeVar in graphVars {
                 guard let varParent = codeVar.base.address.parent() else {
                     continue
                 }
