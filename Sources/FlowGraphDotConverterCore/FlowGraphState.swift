@@ -4,28 +4,6 @@
 
 import Foundation
 
-class FlowGraphInitialState {
-    let name: String
-    let codeExprCall: CodeExprCall
-    
-    init(codeExprCall: CodeExprCall) {
-        self.codeExprCall = codeExprCall
-        
-        if var body = self.codeExprCall.structure.body {
-            if body.starts(with: ".") {
-                body = String(body.dropFirst())
-            }
-            self.name = body
-        } else {
-            fatalError()
-        }
-    }
-    
-    var varName: String? {
-        return self.codeExprCall.varName
-    }
-}
-
 class FlowGraphState {
     enum Kind {
         case waiting
