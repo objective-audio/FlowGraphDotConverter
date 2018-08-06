@@ -69,8 +69,8 @@
         "repositoryURL": "https://github.com/objective-audio/SwiftFlowGraph.git",
         "state": {
           "branch": null,
-          "revision": "54a9f86a2664d4749d1a05e50442e1b5df1822f1",
-          "version": "0.3.0"
+          "revision": "23667987b0f91cda1bf871a1fc2625a86455d615",
+          "version": "0.4.0"
         }
       },
       {
@@ -78,8 +78,8 @@
         "repositoryURL": "https://github.com/drmohundro/SWXMLHash.git",
         "state": {
           "branch": null,
-          "revision": "2211b35c2e0e8b08493f86ba52b26e530cabb751",
-          "version": "4.7.0"
+          "revision": "24698592b581aef2bdbfc86ce18695708038c624",
+          "version": "4.7.1"
         }
       },
       {
