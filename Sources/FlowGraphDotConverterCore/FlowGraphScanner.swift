@@ -196,7 +196,7 @@ class FlowGraphScanner {
         
         for (_, codeExprCall) in codeScanner.codeExprCalls {
             self.scanState(codeExprCall: codeExprCall, codeSyntaxMap: codeSyntaxMap)
-            self.scanBegin(codeExprCall: codeExprCall, codeSyntaxMap: codeSyntaxMap)
+            self.scanInitial(codeExprCall: codeExprCall, codeSyntaxMap: codeSyntaxMap)
             self.scanBuilder(codeExprCall: codeExprCall, codeScanner: codeScanner, codeSyntaxMap: codeSyntaxMap)
         }
         
@@ -312,8 +312,8 @@ class FlowGraphScanner {
         }
     }
     
-    private func scanBegin(codeExprCall: CodeExprCall, codeSyntaxMap: CodeSyntaxMap) {
-        guard let name = codeExprCall.structure.name, name.hasSuffix(".begin") else {
+    private func scanInitial(codeExprCall: CodeExprCall, codeSyntaxMap: CodeSyntaxMap) {
+        guard let name = codeExprCall.structure.name, name.hasSuffix(".build") else {
             return
         }
         
@@ -325,7 +325,7 @@ class FlowGraphScanner {
             return
         }
         
-        guard argName == "with" else {
+        guard argName == "initial" else {
             return
         }
         
@@ -345,7 +345,7 @@ class FlowGraphScanner {
             return
         }
         
-        guard tokens[0].content == "with" else {
+        guard tokens[0].content == "initial" else {
             return
         }
         
