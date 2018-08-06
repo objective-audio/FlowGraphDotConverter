@@ -6,7 +6,7 @@ import Foundation
 import SourceKittenFramework
 import FlowGraph
 
-class StateScanner {
+struct StateScannerGraphType: FlowGraphType {
     enum WaitingState {
         case findStateDecl
         case findWaitingName
@@ -24,17 +24,21 @@ class StateScanner {
     }
     
     typealias Event = (scanner: StateScanner, token: CodeSyntaxToken, codeExprCall: CodeExprCall)
-    
+}
+
+class StateScanner {
     // ステートの中身の解析
-    let graph = FlowGraph<WaitingState, RunningState, Event>()
+    let graph: FlowGraph<StateScannerGraphType>
     
     var flowGraphState: FlowGraphState?
     
     init() {
         var tempNextState: FlowGraphNextState?
         
+        let builder = FlowGraphBuilder<StateScannerGraphType>()
+        
         // waitingかrunningかを調べる
-        self.graph.add(waiting: .findStateDecl) { event in
+        builder.add(waiting: .findStateDecl) { event in
             if event.token.content == "waiting" {
                 // waitingだった
                 return .wait(.findWaitingName)
@@ -47,19 +51,19 @@ class StateScanner {
         }
         
         // Waitingステートを生成
-        self.graph.add(waiting: .findWaitingName) { event in
+        builder.add(waiting: .findWaitingName) { event in
             event.scanner.flowGraphState = FlowGraphState(name: event.token.content, kind: .waiting, codeExprCall: event.codeExprCall)
             return .wait(.findInDecl)
         }
         
         // Runningステートを生成
-        self.graph.add(waiting: .findRunningName) { event in
+        builder.add(waiting: .findRunningName) { event in
             event.scanner.flowGraphState = FlowGraphState(name: event.token.content, kind: .running, codeExprCall: event.codeExprCall)
             return .wait(.findInDecl)
         }
         
         // inを探す
-        self.graph.add(waiting: .findInDecl) { event in
+        builder.add(waiting: .findInDecl) { event in
             if event.token.content == "in" {
                 // inが見つかった
                 return .wait(.findInNextStateKind)
@@ -68,7 +72,7 @@ class StateScanner {
         }
         
         // inの後を調べる
-        self.graph.add(waiting: .findInNextStateKind) { event in
+        builder.add(waiting: .findInNextStateKind) { event in
             switch event.token.content {
             case "run":
                 tempNextState = FlowGraphNextState(kind: .run, token: event.token)
@@ -92,7 +96,7 @@ class StateScanner {
         }
         
         // returnを探す
-        self.graph.add(waiting: .findReturnDecl) { event in
+        builder.add(waiting: .findReturnDecl) { event in
             if event.token.content == "return" {
                 // returnが見つかった
                 return .wait(.findNextStateKind)
@@ -101,7 +105,7 @@ class StateScanner {
         }
         
         // returnの後を調べる
-        self.graph.add(waiting: .findNextStateKind) { event in
+        builder.add(waiting: .findNextStateKind) { event in
             switch event.token.content {
             case "run":
                 tempNextState = FlowGraphNextState(kind: .run, token: event.token)
@@ -122,7 +126,7 @@ class StateScanner {
         }
         
         // 次ステートの名前を保持
-        self.graph.add(waiting: .findNextStateName) { event in
+        builder.add(waiting: .findNextStateName) { event in
             if let nextState = tempNextState {
                 nextState.name = event.token.content
             }
@@ -130,7 +134,7 @@ class StateScanner {
         }
         
         // 次ステートを記録する
-        self.graph.add(running: .recordNextState) { event in
+        builder.add(running: .recordNextState) { event in
             if let state = event.scanner.flowGraphState, let nextState = tempNextState {
                 state.add(nextState: nextState)
                 tempNextState = nil
@@ -143,11 +147,11 @@ class StateScanner {
         }
         
         // スキャン失敗
-        self.graph.add(waiting: .failed) { event in
+        builder.add(waiting: .failed) { event in
             return .stay
         }
         
-        self.graph.begin(with: .findStateDecl)
+        self.graph = builder.build(initial: .findStateDecl)
     }
     
     func input(tokens: [CodeSyntaxToken], codeExprCall: CodeExprCall) {
@@ -193,7 +197,7 @@ class FlowGraphScanner {
         for (_, codeExprCall) in codeScanner.codeExprCalls {
             self.scanState(codeExprCall: codeExprCall, codeSyntaxMap: codeSyntaxMap)
             self.scanBegin(codeExprCall: codeExprCall, codeSyntaxMap: codeSyntaxMap)
-            self.scanGraph(codeExprCall: codeExprCall, codeScanner: codeScanner, codeSyntaxMap: codeSyntaxMap)
+            self.scanBuilder(codeExprCall: codeExprCall, codeScanner: codeScanner, codeSyntaxMap: codeSyntaxMap)
         }
         
         self.scanInstance()
@@ -264,8 +268,8 @@ class FlowGraphScanner {
         }
     }
     
-    private func scanGraph(codeExprCall: CodeExprCall, codeScanner: CodeScanner, codeSyntaxMap: CodeSyntaxMap) {
-        guard let name = codeExprCall.structure.name, name.hasPrefix("FlowGraph<") else {
+    private func scanBuilder(codeExprCall: CodeExprCall, codeScanner: CodeScanner, codeSyntaxMap: CodeSyntaxMap) {
+        guard let name = codeExprCall.structure.name, name.hasPrefix("FlowGraphBuilder<") else {
             return
         }
         
@@ -349,10 +353,10 @@ class FlowGraphScanner {
     }
     
     private func scanInstance() {
-        let graphVars: [CodeVar] = self.flowGraphInstances.map { (_, value) in return value.codeVar }
+        let builderVars: [CodeVar] = self.flowGraphInstances.map { (_, value) in return value.codeVar }
         
         let findInstance = { (stateParent: CodeAddress, expectedVarName: String) -> FlowGraphInstance? in
-            forVars: for codeVar in graphVars {
+            forVars: for codeVar in builderVars {
                 guard let varParent = codeVar.base.address.parent() else {
                     continue
                 }
