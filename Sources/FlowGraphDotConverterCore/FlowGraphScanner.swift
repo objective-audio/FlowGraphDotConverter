@@ -6,7 +6,7 @@ import Foundation
 import SourceKittenFramework
 import FlowGraph
 
-struct StateScannerGraphType: FlowGraphType {
+class StateScanner: FlowGraphType {
     enum WaitingState {
         case findStateDecl
         case findWaitingName
@@ -24,18 +24,16 @@ struct StateScannerGraphType: FlowGraphType {
     }
     
     typealias Event = (scanner: StateScanner, token: CodeSyntaxToken, codeExprCall: CodeExprCall)
-}
-
-class StateScanner {
+    
     // ステートの中身の解析
-    let graph: FlowGraph<StateScannerGraphType>
+    let graph: FlowGraph<StateScanner>
     
     var flowGraphState: FlowGraphState?
     
     init() {
         var tempNextState: FlowGraphNextState?
         
-        let builder = FlowGraphBuilder<StateScannerGraphType>()
+        let builder = FlowGraphBuilder<StateScanner>()
         
         // waitingかrunningかを調べる
         builder.add(waiting: .findStateDecl) { event in
