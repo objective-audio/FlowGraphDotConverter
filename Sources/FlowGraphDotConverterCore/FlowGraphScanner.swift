@@ -206,15 +206,22 @@ class FlowGraphScanner {
             return
         }
         
-        guard codeExprCall.arguments.count == 2 else {
-            return
-        }
-        
         guard let arg = codeExprCall.arguments.first, let argName = arg.structure.name else {
             return
         }
         
-        guard argName == "waiting" || argName == "running" else {
+        if codeExprCall.arguments.count == 2 {
+            guard argName == "waiting" || argName == "running" else {
+                return
+            }
+        } else if codeExprCall.arguments.count == 3 {
+            guard argName == "waiting" else {
+                return
+            }
+            guard let argName = codeExprCall.arguments[1].structure.name, argName == "subFlowType" else {
+                return
+            }
+        } else {
             return
         }
         
