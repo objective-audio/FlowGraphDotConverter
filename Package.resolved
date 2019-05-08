@@ -60,8 +60,8 @@
         "repositoryURL": "https://github.com/objective-audio/SwiftFlowGraph.git",
         "state": {
           "branch": null,
-          "revision": "4172d24af9dd36823fb1a400d584ce4fd47b6e34",
-          "version": "0.6.1"
+          "revision": "dced41f42febb6057472d25feb49603a2623f275",
+          "version": "0.6.2"
         }
       },
       {
