@@ -127,8 +127,8 @@ extension CodeAddress: CustomDebugStringConvertible {
 }
 
 extension CodeAddress: Hashable {
-    var hashValue: Int {
-        return self.debugDescription.hashValue
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(self.debugDescription)
     }
 }
 
