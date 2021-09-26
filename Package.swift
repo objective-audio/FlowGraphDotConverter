@@ -12,7 +12,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/jpsim/SourceKitten.git", from: "0.27.0"),
         .package(url: "https://github.com/kylef/Commander.git", from: "0.9.2"),
-        .package(url: "https://github.com/objective-audio/SwiftFlowGraph.git", from: "0.6.2"),
+        .package(url: "https://github.com/objective-audio/SwiftFlowGraph.git", from: "0.6.3"),
     ],
     targets: [
         .target(
