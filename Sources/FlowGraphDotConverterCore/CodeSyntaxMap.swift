@@ -8,16 +8,16 @@ import SourceKittenFramework
 class CodeSyntaxToken {
     let token: SyntaxToken
     var kind: SyntaxKind { return SyntaxKind(rawValue: self.token.type)! }
-    var offset: Int { return self.token.offset }
-    var length: Int { return self.token.length }
+    var offset: Int { return self.token.offset.value }
+    var length: Int { return self.token.length.value }
     let content: String
     
     init(token: SyntaxToken, contents: String) {
         self.token = token
         
         let utf8contents = contents.utf8
-        let startIndex = utf8contents.index(utf8contents.startIndex, offsetBy: token.offset)
-        let endIndex = utf8contents.index(startIndex, offsetBy: token.length)
+        let startIndex = utf8contents.index(utf8contents.startIndex, offsetBy: token.offset.value)
+        let endIndex = utf8contents.index(startIndex, offsetBy: token.length.value)
         self.content = String(utf8contents[startIndex..<endIndex])!
     }
 }
